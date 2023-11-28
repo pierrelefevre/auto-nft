@@ -1,32 +1,35 @@
-import requests
-import os
-import json
+import llm
 
-# request image generation from https://sd0.vm-app.cloud.cbh.kth.se/generate?prompt=PROMPT_HERE and download the file into ./img/id.png
+def scenarios():
+    scenario = "Bazooki is a cute bazooka mascot. Write 12 scenarios in which Bazooki might find himself. Write one per line."
+    scenarios = llm.text(scenario).split("\n")
 
+    # Skip first and last scenario as they are usually some kind of intro or outro
+    scenarios = scenarios[1:-1]
+    return scenarios
+
+def prompt(scenario):
+    prompt = llm.text(
+        "Write a short but descriptive prompt for image generation about this scenario. The prompt should be a few space separated words. Make sure to emphasize that the character is a bazooka.\n" + scenario)
+    return prompt
+
+def title(scenario):
+    title = llm.text(
+        "What is a good title for this scenario? It is about Bazooki the cute bazooka mascot\n" + scenario + "\nReturn only the title.").replace(",", "").replace("\"", "")
+    return title
+
+def description(scenario):
+    description = llm.text(
+        "Write a short third person summary for this scenario.  It is about Bazooki the cute bazooka mascot\n" + scenario + "\nReturn only the summary.").replace(",", "").replace("\"", "")
+    return description
 
 def image(id, prompt):
-    r = requests.get(
-        f"https://sd0.vm-app.cloud.cbh.kth.se/generate?prompt={prompt}")
+    llm.image(id, "cute bazooka mascot ultra realistic 4k" + prompt)
 
-    # make sure the directory exists
-    if not os.path.exists("./img"):
-        os.makedirs("./img")
+def metadata_file(items):
+    with open("metadata.csv", "w+") as file:
+        file.write("tokenID,name,description,file_name\n")
+        for item in items:
+            file.write(str(item["tokenID"]) + "," + item["name"] + "," +
+                    item["description"] + "," + item["file_name"] + "\n")
 
-    with open(f"./img/{id}.png", 'wb') as f:
-        f.write(r.content)
-
-    # return filepath
-    return f"{id}.png"
-
-
-def text(prompt):
-    body = json.dumps({"prompt": f"This is a conversation between user and llama, a friendly chatbot. respond in simple markdown. \n\n\nUser:{prompt}\n\n\nllama:",
-                       "frequency_penalty": 0, "n_predict": 400, "presence_penalty": 0, "repeat_last_n": 256, "repeat_penalty": 1.18, "stop": ["</s>", "llama:", "User:"], "temperature": 1.5, "tfs_z": 1, "top_k": 40, "top_p": 0.5, "typical_p": 1})
-
-    response = requests.post(
-        "https://llama.app.cloud.cbh.kth.se/completion", data=body)
-    res_json = response.json()
-    content = res_json['content']
-
-    return content

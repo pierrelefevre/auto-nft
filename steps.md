@@ -11,7 +11,7 @@ Based on main.py
 6. Choose Polygon
 7. Deploy!
 8. View transaction on polygonscan, explain a bit about what's going on
-9. Go to editor
+9. Go to details
 10. Set theme to covered
 11. Save collection
 12. Go to items

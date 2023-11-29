@@ -6,6 +6,7 @@ def scenarios():
 
     # Skip first and last scenario as they are usually some kind of intro or outro
     scenarios = scenarios[1:-1]
+
     return scenarios
 
 def prompt(scenario):
